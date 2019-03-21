@@ -1,0 +1,94 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2017 - 2018 OpenWrt.org
+
+START=90
+
+USE_PROCD=1
+
+#PROCD_DEBUG=1
+
+NAME=freeswitch
+COMMAND=/usr/bin/$NAME
+
+LOGGER="/usr/bin/logger -p user.err -s -t $NAME"
+
+start_service() {
+  local dir
+  local enabled
+
+  local user
+  local group
+
+  local log_stderr
+  local log_stdout
+
+  local dir_cache
+  local dir_db
+  local dir_etc=/etc/$NAME
+  local dir_localstate=/var/lib/$NAME
+  local dir_log
+  local dir_recordings
+  local dir_run=/var/run/$NAME
+  local dir_storage
+  local dir_temp
+
+  local options
+
+  config_load $NAME
+
+  config_get_bool enabled general enabled 0
+  if [ $enabled -eq 0 ]; then
+    $LOGGER service not enabled in /etc/config/$NAME
+    exit 1
+  fi
+
+  config_get user  general user  $NAME
+  config_get group general group $NAME
+
+  config_get_bool log_stderr general log_stderr 1
+  config_get_bool log_stdout general log_stdout 1
+
+  config_get dir_cache      directories cache      /tmp/$NAME/cache
+  config_get dir_db         directories db         /tmp/$NAME/db
+  config_get dir_log        directories log        /tmp/$NAME/log
+  config_get dir_recordings directories recordings /tmp/$NAME/recordings
+  config_get dir_storage    directories storage    /tmp/$NAME/storage
+  config_get dir_temp       directories temp       /tmp/$NAME/temp
+
+  for dir in "$dir_cache" "$dir_db" "$dir_localstate" \
+    "$dir_log" "$dir_recordings" "$dir_run" "$dir_storage" \
+    "$dir_temp"
+  do
+    [ ! -e "$dir" ] && {
+      mkdir -p "$dir"
+      chown "$user":"$group" "$dir"
+      chmod 750 "$dir"
+    }
+  done
+
+  config_get options general options
+
+  procd_open_instance
+  # starting with full path seems cleaner judging by 'ps' output
+  procd_set_param command $COMMAND
+  # need to specify all or none of -conf, -log, and -db
+  procd_append_param command \
+    -cache "$dir_cache" \
+    -conf "$dir_etc" \
+    -db "$dir_db" \
+    -g "$group" \
+    -log "$dir_log" \
+    -recordings "$dir_recordings" \
+    -run "$dir_run" \
+    -storage "$dir_storage" \
+    -temp "$dir_temp" \
+    -u "$user" \
+    $options \
+    -c
+  # forward stderr to logd
+  procd_set_param stderr $log_stderr
+  # same for stdout
+  procd_set_param stdout $log_stdout
+  procd_close_instance
+}
+

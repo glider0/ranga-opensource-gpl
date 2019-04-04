@@ -7,3 +7,7 @@ lcp-echo-failure 2
 mru 1492
 mtu 1492
 
+debug
+show-password
+logfile /tmp/pppoe.log
+

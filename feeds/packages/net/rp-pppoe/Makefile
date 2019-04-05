@@ -125,14 +125,11 @@ define Package/rp-pppoe-relay/install
 endef
 
 define Package/rp-pppoe-server/install
-	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/pppoe-server.init $(1)/etc/init.d/pppoe-server
 	$(INSTALL_DIR) $(1)/etc/ppp
-	$(INSTALL_CONF) ./files/ppp/{options,pap-secrets,pppoe-server-options} $(1)/etc/ppp/
+	$(INSTALL_CONF) ./files/ppp/{pap-secrets,pppoe-server-options} $(1)/etc/ppp/
 	$(INSTALL_DIR) $(1)/etc/ppp/plugins
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/pppoe-server $(1)/usr/sbin/
-	$(INSTALL_DATA) ./files/pppoe-server.default $(1)/etc/uci-defaults/
 endef
 
 define Package/rp-pppoe-sniff/install

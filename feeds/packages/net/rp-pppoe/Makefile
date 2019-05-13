@@ -113,7 +113,6 @@ endef
 
 define Package/rp-pppoe-common/install
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/pppoe.config $(1)/etc/config/pppoe
 endef
 
 define Package/rp-pppoe-relay/install

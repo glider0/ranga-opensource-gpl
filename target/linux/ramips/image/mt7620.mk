@@ -832,7 +832,6 @@ TARGET_DEVICES += zbtlink_zbt-we826-e
 define Device/zbt-wr8305rt
   DTS := ZBT-WR8305RT
   DEVICE_TITLE := Zbtlink ZBT-WR8305RT
-  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
 endef
 TARGET_DEVICES += zbt-wr8305rt
 
